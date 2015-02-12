@@ -1,0 +1,109 @@
+---
+title: "Peer Assessment 1"
+output: html_document
+---
+
+This is an R Markdown document for peer assessment 1 of reproducible research.
+
+## Loading and preprocessing the data
+```{r}
+unzip('activity.zip')
+act <- read.csv('activity.csv')
+str(act)
+```
+
+
+## What is mean total number of steps taken per day?
+### 1. Total number of steps taken per day
+```{r}
+tapply(act$step, act$date, sum)
+```  
+
+### 2. Make a histogram of the total number of steps taken each day
+- A histogram try to use the a series of ranges in the steps per day and represent the distribution of steps in a specific range in a statistical manner (frequency, density or others).
+- A barplot simply summarizes the steps on each day for comparison.
+
+```{r}
+step <- tapply(act$step, act$date, sum)
+op <- par(mfrow = c(2, 1))
+hist(step, col = 'gray', labels = T)
+barplot(step, main = "Steps taken per day by barplot", xlab = 'date', ylab = 'steps')
+par(op)
+```
+
+### 3. Mean and mediean of the total number of steps per day
+```{r}
+mean(step, na.rm = T) ## For mean value
+median(step, na.rm = T) ## For median value
+```
+
+
+## What is the average daily activity pattern?
+### 1. Make a time series plot
+```{r}
+library(dplyr)
+act <- tbl_df(act)
+a_stp <- act %>%
+    group_by(interval) %>%
+    summarize(mean = mean(steps, na.rm = T))
+plot(a_stp$interval, a_stp$mean, type = 'l', xlab = 'interval', ylab = 'average steps', main = 'average steps of 5 min interval')
+```
+
+### 2. Maximum number of steps in 5 min interval
+```{r}
+a_stp[which.max(a_stp$mean),]
+```
+
+## Imputing missing values
+### 1. Total number of rows with NAs
+```{r}
+sum(is.na(act$steps))
+```
+
+### 2. Filling gaps
+```{r}
+n <- length(levels(act$date))
+na_idx <- is.na(act$steps); mean_5 <- rep(a_stp$mean, n)
+mean_5[!na_idx] <- 0; act$steps[na_idx] <- 0
+act$steps <- act$steps + mean_5
+head(act)
+```
+
+### 3. New dataset
+```{r}
+act_new <- act
+```
+
+### 4. New histogram, mean and median
+Imputing missing data does not change the mean of total steps, but reduces the median value. They become the same value in the end.
+```{r}
+t_step <- act_new %>%
+    group_by(date) %>%
+    summarize(sum = sum(steps))
+hist(t_step$sum, col = 'blue', xlab = 'steps', main = 'Histogram of total steps')
+mean(t_step$sum)
+median(t_step$sum)
+```
+
+## Are there differences in activity patterns between weekdays and weekends?
+### 1. New factor variable (weekday)
+```{r}
+act_new <- mutate(act_new, week = weekdays(as.Date(act_new$date)))
+act_new$week <- as.factor(ifelse(act_new$week %in% c('Saturday', 'Sunday'), 'weekend', 'weekday'))
+head(act_new)
+```
+
+### 2. Make a panel plot (time series grouped by weekday and weekend)
+```{r}
+library(ggplot2)
+step_w <- act_new %>%
+    group_by(interval, week) %>%
+    summarize(mean = mean(steps))
+
+ggplot(step_w, aes(x = interval, y = mean)) + geom_line(aes(color = week)) + facet_wrap(~week, ncol = 1) + labs(x = 'interval', y = 'Number of steps') + ggtitle('Weekday vs. Weekend') + theme_linedraw() + theme(legend.position = 'none');
+```
+
+```{r echo = FALSE}
+unlink('activity.csv')
+```
+
