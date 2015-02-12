@@ -1,7 +1,7 @@
 Peer Assessment 1
 =================
 
-This is an R Markdown document for peer assessment 1 of reproducible research.
+_This is an R Markdown document for peer assessment 1 of reproducible research._
 
 ## Loading and preprocessing the data
 
@@ -23,33 +23,11 @@ str(act)
 ### 1. Total number of steps taken per day
 
 ```r
-tapply(act$step, act$date, sum)
+step <- tapply(act$step, act$date, sum)
+barplot(step, main = "Steps taken per day by barplot", xlab = 'date', ylab = 'steps')
 ```
 
-```
-## 2012-10-01 2012-10-02 2012-10-03 2012-10-04 2012-10-05 2012-10-06 
-##         NA        126      11352      12116      13294      15420 
-## 2012-10-07 2012-10-08 2012-10-09 2012-10-10 2012-10-11 2012-10-12 
-##      11015         NA      12811       9900      10304      17382 
-## 2012-10-13 2012-10-14 2012-10-15 2012-10-16 2012-10-17 2012-10-18 
-##      12426      15098      10139      15084      13452      10056 
-## 2012-10-19 2012-10-20 2012-10-21 2012-10-22 2012-10-23 2012-10-24 
-##      11829      10395       8821      13460       8918       8355 
-## 2012-10-25 2012-10-26 2012-10-27 2012-10-28 2012-10-29 2012-10-30 
-##       2492       6778      10119      11458       5018       9819 
-## 2012-10-31 2012-11-01 2012-11-02 2012-11-03 2012-11-04 2012-11-05 
-##      15414         NA      10600      10571         NA      10439 
-## 2012-11-06 2012-11-07 2012-11-08 2012-11-09 2012-11-10 2012-11-11 
-##       8334      12883       3219         NA         NA      12608 
-## 2012-11-12 2012-11-13 2012-11-14 2012-11-15 2012-11-16 2012-11-17 
-##      10765       7336         NA         41       5441      14339 
-## 2012-11-18 2012-11-19 2012-11-20 2012-11-21 2012-11-22 2012-11-23 
-##      15110       8841       4472      12787      20427      21194 
-## 2012-11-24 2012-11-25 2012-11-26 2012-11-27 2012-11-28 2012-11-29 
-##      14478      11834      11162      13646      10183       7047 
-## 2012-11-30 
-##         NA
-```
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
 
 ### 2. Make a histogram of the total number of steps taken each day
 - A histogram try to use the a series of ranges in the steps per day and represent the distribution of steps in a specific range in a statistical manner (frequency, density or others).
@@ -57,17 +35,10 @@ tapply(act$step, act$date, sum)
 
 
 ```r
-step <- tapply(act$step, act$date, sum)
-op <- par(mfrow = c(2, 1))
 hist(step, col = 'gray', xlab = 'steps')
-barplot(step, main = "Steps taken per day by barplot", xlab = 'date', ylab = 'steps')
 ```
 
 ![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
-
-```r
-par(op)
-```
 
 ### 3. Mean and mediean of the total number of steps per day
 
@@ -87,28 +58,11 @@ median(step, na.rm = T) ## For median value
 ## [1] 10765
 ```
 
-
 ## What is the average daily activity pattern?
 ### 1. Make a time series plot
 
 ```r
-library(dplyr)
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
+library(dplyr, warn.conflicts = FALSE)
 act <- tbl_df(act)
 a_stp <- act %>%
     group_by(interval) %>%
@@ -142,7 +96,7 @@ sum(is.na(act$steps))
 ## [1] 2304
 ```
 
-### 2. Filling gaps
+### 2. Filling gaps (using the mean for each 5-minute interval)
 
 ```r
 n <- length(levels(act$date))
@@ -171,7 +125,7 @@ act_new <- act
 ```
 
 ### 4. New histogram, mean and median
-Imputing missing data does not change the mean of total steps, but reduces the median value. They become the same value in the end.
+Imputing missing data does not change the mean of total steps, but reduces the median value. Also, They become the same value in the end.
 
 ```r
 t_step <- act_new %>%

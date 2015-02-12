@@ -1,7 +1,7 @@
 Peer Assessment 1
 =================
 
-This is an R Markdown document for peer assessment 1 of reproducible research.
+_This is an R Markdown document for peer assessment 1 of reproducible research._
 
 ## Loading and preprocessing the data
 ```{r}
@@ -13,8 +13,9 @@ str(act)
 
 ## What is mean total number of steps taken per day?
 ### 1. Total number of steps taken per day
-```{r}
-tapply(act$step, act$date, sum)
+```{r fig.width = 10}
+step <- tapply(act$step, act$date, sum)
+barplot(step, main = "Steps taken per day by barplot", xlab = 'date', ylab = 'steps')
 ```  
 
 ### 2. Make a histogram of the total number of steps taken each day
@@ -22,11 +23,7 @@ tapply(act$step, act$date, sum)
 - A barplot simply summarizes the steps on each day for comparison.
 
 ```{r}
-step <- tapply(act$step, act$date, sum)
-op <- par(mfrow = c(2, 1))
 hist(step, col = 'gray', xlab = 'steps')
-barplot(step, main = "Steps taken per day by barplot", xlab = 'date', ylab = 'steps')
-par(op)
 ```
 
 ### 3. Mean and mediean of the total number of steps per day
@@ -35,11 +32,10 @@ mean(step, na.rm = T) ## For mean value
 median(step, na.rm = T) ## For median value
 ```
 
-
 ## What is the average daily activity pattern?
 ### 1. Make a time series plot
 ```{r}
-library(dplyr)
+library(dplyr, warn.conflicts = FALSE)
 act <- tbl_df(act)
 a_stp <- act %>%
     group_by(interval) %>%
@@ -58,7 +54,7 @@ a_stp[which.max(a_stp$mean),]
 sum(is.na(act$steps))
 ```
 
-### 2. Filling gaps
+### 2. Filling gaps (using the mean for each 5-minute interval)
 ```{r}
 n <- length(levels(act$date))
 na_idx <- is.na(act$steps); mean_5 <- rep(a_stp$mean, n)
@@ -73,7 +69,7 @@ act_new <- act
 ```
 
 ### 4. New histogram, mean and median
-Imputing missing data does not change the mean of total steps, but reduces the median value. They become the same value in the end.
+Imputing missing data does not change the mean of total steps, but reduces the median value. Also, They become the same value in the end.
 ```{r}
 t_step <- act_new %>%
     group_by(date) %>%
@@ -92,7 +88,7 @@ head(act_new)
 ```
 
 ### 2. Make a panel plot (time series grouped by weekday and weekend)
-```{r}
+```{r fig.width = 8}
 library(ggplot2)
 step_w <- act_new %>%
     group_by(interval, week) %>%
