@@ -1,7 +1,5 @@
----
-title: "Peer Assessment 1"
-output: html_document
----
+Peer Assessment 1
+=================
 
 This is an R Markdown document for peer assessment 1 of reproducible research.
 
@@ -61,7 +59,7 @@ tapply(act$step, act$date, sum)
 ```r
 step <- tapply(act$step, act$date, sum)
 op <- par(mfrow = c(2, 1))
-hist(step, col = 'gray', labels = T)
+hist(step, col = 'gray', xlab = 'steps')
 barplot(step, main = "Steps taken per day by barplot", xlab = 'date', ylab = 'steps')
 ```
 
